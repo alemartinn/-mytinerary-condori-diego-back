@@ -11,7 +11,7 @@ const {createCity, readAll, readCity, updateCity, deleteCity} = require('../cont
 router.post('/', createCity);
 router.get('/', readAll);
 router.get('/:id', readCity);
-router.put('/:id', updateCity);
+router.patch('/:id', updateCity);
 router.delete('/:id', deleteCity);
 
 module.exports = router;

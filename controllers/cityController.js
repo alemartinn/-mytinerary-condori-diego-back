@@ -99,31 +99,10 @@ const cityController = {
     updateCity: async (req, res) => {
 
         const { id } = req.params;
-        const {city,country,photo, population, fundation} = req.body;
-        console.log('line 94', city, country, photo, population, fundation);
-
-        // var query = {};
+        const myCities = req.body;
         
-        // if(req.query.city){
-        //     const str = req.query.city;
-        //     const str2 = str.charAt(0).toUpperCase() + str.slice(1);
-        //     query.city = str2;
-        // }
-        // if(req.query.country){
-        //     const str = req.query.country;
-        //     const str2 = str.charAt(0).toUpperCase() + str.slice(1);
-        //     query.country = str2;
-        // }
-        // if(req.query.population){
-        //     query.population = req.query.population;
-        // }
-        // if(req.query.fundation){
-        //     query.fundation = req.query.fundation;
-        // }
-
         try {
-            let city = await City.findOneAndUpdate({ _id: id }, req.body, { new: true })
-            // let city = await City.findOneAndUpdate({ _id: id }, query, { new: true })
+            let city = await City.findOneAndUpdate({ _id: id }, myCities, { new: true })
             if (city) {
                 res.status(200).json({
                     message: "You updated one city",
