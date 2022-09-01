@@ -1,13 +1,11 @@
 
-const City = require('../models/City'); //Requerimos el modelo
+const City = require('../models/City');
 
 const cityController = {
     createCity: async(req , res) => {
         const {city,country,photo, population, fundation} = req.body;
         try{
-            //crear objeto con new City y debemos guardar con .save()
             await new City({city,country,photo,population, fundation}).save();
-            //configurar respuesta
             res.status(201).json({
                 message: 'The City has been created.',
                 success: true
@@ -19,7 +17,7 @@ const cityController = {
         }
     },
     readCity: async(req, res) => {
-        let {id} = req.params; //Pasamos el id en los parametros de URL.
+        let {id} = req.params;
         try{
             let cityFounded = await City.findOne({_id: id});
             
@@ -60,7 +58,6 @@ const cityController = {
         if(req.query.country){
             const str = req.query.country;
             const str2 = str.charAt(0).toUpperCase() + str.slice(1);
-            // const regex = new RegExp(str2, 'i');
             query.country = { $regex: '^' + str2, $options: 'i' };
         }
         if(req.query.population){
@@ -100,7 +97,7 @@ const cityController = {
 
         const { id } = req.params;
         const myCities = req.body;
-        
+
         try {
             let city = await City.findOneAndUpdate({ _id: id }, myCities, { new: true })
             if (city) {
@@ -156,5 +153,3 @@ const cityController = {
 }
 
 module.exports = cityController;
-
-//Finalmente ponerlo en routes.
