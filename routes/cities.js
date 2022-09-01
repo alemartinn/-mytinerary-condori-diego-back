@@ -6,8 +6,6 @@ const {createCity, readAll, readCity, updateCity, deleteCity} = require('../cont
 
 /* GET users listing. */
 
-/*Le agregamos un metodo para que controle el controlador (de cities en este caso)*/
-// router.post('/cities', cityController.create);
 router.post('/', createCity);
 router.get('/', readAll);
 router.get('/:id', readCity);
