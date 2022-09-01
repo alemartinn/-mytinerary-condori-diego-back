@@ -1,8 +1,6 @@
 
 require('dotenv').config();
 
-const db = require('./config/database');
-
 const Cities = require('./models/City');
 
 Cities.create({
