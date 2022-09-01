@@ -1,8 +1,8 @@
 
 const City = require('../models/City'); //Requerimos el modelo
 
-const eventController = {
-    create: async(req , res) => {
+const cityController = {
+    createCity: async(req , res) => {
         const {city,country,photo, population, fundation} = req.body;
         try{
             //crear objeto con new City y debemos guardar con .save()
@@ -18,7 +18,7 @@ const eventController = {
             });
         }
     },
-    read: async(req, res) => {
+    readCity: async(req, res) => {
         let {id} = req.params; //Pasamos el id en los parametros de URL.
         try{
             let cityFounded = await City.findOne({_id: id});
@@ -52,9 +52,16 @@ const eventController = {
         if(req.query.id){
             query._id = req.query.id;
         }
-
         if(req.query.city){
-            query.city = req.query.city;
+            const str = req.query.city;
+            const str2 = str.charAt(0).toUpperCase() + str.slice(1);
+            query.city = { $regex: '^' + str2, $options: 'i' };
+        }
+        if(req.query.country){
+            const str = req.query.country;
+            const str2 = str.charAt(0).toUpperCase() + str.slice(1);
+            // const regex = new RegExp(str2, 'i');
+            query.country = { $regex: '^' + str2, $options: 'i' };
         }
         if(req.query.population){
             query.population = req.query.population;
@@ -88,9 +95,87 @@ const eventController = {
                 success: false
             });
         }
+    },
+    updateCity: async (req, res) => {
+
+        const { id } = req.params;
+        const {city,country,photo, population, fundation} = req.body;
+        console.log('line 94', city, country, photo, population, fundation);
+
+        // var query = {};
+        
+        // if(req.query.city){
+        //     const str = req.query.city;
+        //     const str2 = str.charAt(0).toUpperCase() + str.slice(1);
+        //     query.city = str2;
+        // }
+        // if(req.query.country){
+        //     const str = req.query.country;
+        //     const str2 = str.charAt(0).toUpperCase() + str.slice(1);
+        //     query.country = str2;
+        // }
+        // if(req.query.population){
+        //     query.population = req.query.population;
+        // }
+        // if(req.query.fundation){
+        //     query.fundation = req.query.fundation;
+        // }
+
+        try {
+            let city = await City.findOneAndUpdate({ _id: id }, req.body, { new: true })
+            // let city = await City.findOneAndUpdate({ _id: id }, query, { new: true })
+            if (city) {
+                res.status(200).json({
+                    message: "You updated one city",
+                    response: city,
+                    success: true
+                })
+            } else {
+                res.status(404).json({
+                    message: "There isn't city to update",
+                    success: false
+                })
+            }
+        } catch (error) {
+            console.log(error)
+            res.status(400).json({
+                message: "We couldn't delete the city, try it again",
+                success: false
+            })
+        }
+    },
+    deleteCity: async(req, res) => {
+        let {id} = req.params;
+        console.log(req.params)
+        try{
+            let cityDeleted = await City.findByIdAndRemove(id);
+
+            if (cityDeleted) {
+                res.status(200).json({
+                    message: "You deleted the city.",
+                    response: cityDeleted,
+                    success: true
+                });
+            } else {
+                res.status(404).json({
+                    message: "There isn't city to delete.",
+                    response: cityDeleted,
+                    success: true
+                });
+            }
+
+        } catch(error){
+            console.log(error);
+            res.status(400).json({
+                message: "We couldn't delete the city, try it again.",
+                response: null,
+                success: false
+            });
+        }
     }
+
 }
 
-module.exports = eventController;
+module.exports = cityController;
 
 //Finalmente ponerlo en routes.
