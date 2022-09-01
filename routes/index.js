@@ -1,8 +1,8 @@
 var express = require('express');
 var router = express.Router();
 
-const userEvents = require('./users')
-const eventRouter = require('./cities')
+const userRouter = require('./users')
+const cityRouter = require('./cities')
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -12,7 +12,7 @@ router.get('/', function(req, res, next) {
 
 
 /* Va a unir todas las rutas en index */
-router.use('/cities', eventRouter)
-router.use('/users', userEvents)
+router.use('/cities', cityRouter)
+router.use('/users', userRouter)
 
 module.exports = router;
