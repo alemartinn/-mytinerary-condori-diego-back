@@ -5,9 +5,10 @@ const cityController = {
     createCity: async(req , res) => {
         const {city,country,photo, population, fundation} = req.body;
         try{
-            await new City({city,country,photo,population, fundation}).save();
+            let cityCreated = await new City({city,country,photo,population, fundation}).save();
             res.status(201).json({
                 message: 'The City has been created.',
+                response: cityCreated._id,
                 success: true
             });
         } catch(error){
@@ -53,6 +54,7 @@ const cityController = {
         if(req.query.city){
             const str = req.query.city;
             const str2 = str.charAt(0).toUpperCase() + str.slice(1);
+            // query.city = new RegExp(`/^${str}.*/\i`)
             query.city = { $regex: '^' + str2, $options: 'i' };
         }
         if(req.query.country){
