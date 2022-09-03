@@ -9,11 +9,6 @@ let schema = new mongoose.Schema({
     country: {type: String, required: true}
 });
 
-const User = mongoose.model(
-    //Nombre de coleccion
-    'users',
-    //Esquema (Tabla) de datos
-    schema
-);
+const User = mongoose.model('users',schema);
 
 module.exports = User;
