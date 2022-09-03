@@ -2,7 +2,7 @@
 const City = require('../models/City');
 
 const cityController = {
-    createCity: async(req , res) => {
+    createCity: async(req, res) => {
         const {city,country,photo, population, fundation} = req.body;
         try{
             let cityCreated = await new City({city,country,photo,population, fundation}).save();
@@ -53,9 +53,9 @@ const cityController = {
         }
         if(req.query.city){
             const str = req.query.city;
-            const str2 = str.charAt(0).toUpperCase() + str.slice(1);
+            // const str2 = str.charAt(0).toUpperCase() + str.slice(1);
             // query.city = new RegExp(`/^${str}.*/\i`)
-            query.city = { $regex: '^' + str2, $options: 'i' };
+            query.city = { $regex: '^' + str, $options: 'i' };
         }
         if(req.query.country){
             const str = req.query.country;
@@ -114,10 +114,10 @@ const cityController = {
                     success: false
                 })
             }
-        } catch (error) {
+        } catch(error) {
             console.log(error)
             res.status(400).json({
-                message: "We couldn't delete the city, try it again",
+                message: "We couldn't update the city, try it again",
                 success: false
             })
         }
