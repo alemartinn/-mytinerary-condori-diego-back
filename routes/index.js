@@ -4,7 +4,7 @@ var router = express.Router();
 const userDefaultRouter = require('./usersDefault');
 const cityRouter = require('./cities');
 const user = require('./users');
-const itineraryRouter = require('./itineraries')
+const itineraryRouter = require('./itineraries');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
