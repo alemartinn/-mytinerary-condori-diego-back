@@ -42,6 +42,33 @@ const itineraryController ={
                 success: false
             })
         }
+    },
+    deleteItinerary: async(req, res) => {
+        let {id} = req.params;
+        
+        try{
+            let itineraryDeleted = await Itinerary.findByIdAndRemove(id);
+
+            if (itineraryDeleted) {
+                res.status(200).json({
+                    message: "You deleted the itinerary.",
+                    response: itineraryDeleted,
+                    success: true
+                });
+            } else {
+                res.status(400).json({
+                    message: "There isn't itinerary to delete.",
+                    response: itineraryDeleted,
+                    success: false
+                });
+            }
+        } catch(error){
+            console.log(error);
+            res.status(400).json({
+                message: "We couldn't delete the itinerary, try it again.",
+                success: false
+            });
+        }
     }
 }
 
