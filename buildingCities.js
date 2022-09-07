@@ -1,6 +1,6 @@
 
 require('dotenv').config();
-const db = require('./config/database')
+const db = require('./config/database');
 
 const Cities = require('./models/City');
 
@@ -17,8 +17,6 @@ const ourCities = [
 {city:"Monaco", country:"Monaco", photo:"https://www.wallpapertip.com/wmimgs/39-392506_sunset-monaco-hd.jpg", population:23000, fundation:2022-08-21},
 {city:"Paris",country:"France",photo:"https://w0.peakpx.com/wallpaper/354/534/HD-wallpaper-sunset-over-paris...",population:32000,fundation:2022-08-25},
 {city:"London",country:"United Kingdom",photo:"https://w0.peakpx.com/wallpaper/977/956/HD-wallpaper-palace-of-westmin...",population:30000,fundation:2022-08-21}
-]
+];
 
-ourCities.forEach((element)=>{
-    Cities.create(element);
-})
+ourCities.forEach(element=>Cities.create(element));
