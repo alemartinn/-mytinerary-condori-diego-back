@@ -16,6 +16,32 @@ const itineraryController ={
             });
         }
     },
+    getAllItineraries: async(req, res) => {
+        const {city} = req.query;
+        try{
+            let itinerariesFounded = await Itinerary.find({city: city}).populate("city", {city: 1, photo: 1});
+            if(itinerariesFounded){
+                res.status(200).json({
+                    message: "Now you get the itineraries",
+                    response: itinerariesFounded,
+                    success: true
+                })
+            } else{
+                res.status(404).json({
+                    message: "We couldn't find itineraries",
+                    success: true
+                })
+            }
+        }
+        catch(error){
+            console.log(error)
+            res.status(400).json({
+                message: "We couldn't get the itineraries, try it again.",
+                response: null,
+                success: false
+            });
+        }
+    },
     updateItinerary: async(req, res) => {
         const {id} = req.params;
         const mytinerary = req.body;
