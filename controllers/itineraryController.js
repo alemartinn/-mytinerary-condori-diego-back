@@ -18,10 +18,8 @@ const itineraryController ={
     },
     getAllItineraries: async(req, res) => {
         const {city} = req.query;
-        console.log("Id: ",city)
         try{
             let itinerariesFounded = await Itinerary.find({city: city}).populate("city", {city: 1, photo: 1});
-            console.log(itinerariesFounded)
             if(itinerariesFounded){
                 res.status(200).json({
                     message: "Now you get the itineraries",
