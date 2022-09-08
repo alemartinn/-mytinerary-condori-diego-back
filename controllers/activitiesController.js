@@ -7,7 +7,7 @@ const activityController = {
         try{
             let activtFounded = await Activity.find({itinerary: itinerary}).populate("itinerary");
             if(activtFounded){
-                res.status(400).json({
+                res.status(200).json({
                     message: "Now you get the activities",
                     response: activtFounded,
                     success: true
