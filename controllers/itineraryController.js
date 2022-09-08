@@ -12,7 +12,39 @@ const itineraryController ={
             });
         } catch(error){
             res.status(400).json({
-                message: "Sorry but we couldn't create the itinerary. Try it again." 
+                message: "Sorry but we couldn't create the itinerary. Try it again.",
+                success: false
+            });
+        }
+    },
+    getAllItineraries: async(req, res) => {
+        //const {city} = req.query;
+        let query = {}
+        if(req.query.city) {query.city = req.query.city}
+        if (req.query.user) {query.user = req.query.user}
+        try{
+            let itinerariesFounded = await Itinerary.find(query).populate("city", {city: 1, photo: 1})
+            .populate('user', {name: 1, lastName: 1, photo:1, country: 1})
+
+            if(itinerariesFounded){
+                res.status(200).json({
+                    message: "Now you get the itineraries",
+                    response: itinerariesFounded,
+                    success: true
+                })
+            } else{
+                res.status(404).json({
+                    message: "We couldn't find itineraries",
+                    success: true
+                })
+            }
+        }
+        catch(error){
+            console.log(error)
+            res.status(400).json({
+                message: "We couldn't get the itineraries, try it again.",
+                response: null,
+                success: false
             });
         }
     },

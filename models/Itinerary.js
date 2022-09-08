@@ -2,8 +2,14 @@ const mongoose = require('mongoose');
 
 let schema = new mongoose.Schema({
     name: {type: String, required: true},
-    user: {type: String,},
-    city: {type: String},
+    user: {
+        type: mongoose.Types.ObjectId,
+        ref: 'users'
+    },
+    city: {
+        type: mongoose.Types.ObjectId,
+        ref: 'cities'
+    },
     price: {type: Number, required: true},
     likes: {type: Array, required: true},
     tags: {type: Array, required: true},
