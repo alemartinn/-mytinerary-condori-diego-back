@@ -4,7 +4,7 @@ const commentController = {
     createComment: async(req, res) => {
         const {comment, user, itinerary} = req.body;
         try{
-            await new Comment(req.body).save()
+            await new Comment({comment, user, itinerary}).save()
             res.status(201).json({
                 message: "Comment created",
                 success: true
