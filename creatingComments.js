@@ -7,7 +7,7 @@ const ourComments = [
     {
         comment: "It's Awesome",
         user: "6312a119918824959c257db2",
-        itinerary: "63191e5019e820ede7918c5b"
+        itinerary: "63191e5019e820ede7918c5f"
     },
     {
         comment: "GREAT!!",
