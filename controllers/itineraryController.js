@@ -24,7 +24,7 @@ const itineraryController ={
         if (req.query.user) {query.user = req.query.user}
         try{
             let itinerariesFounded = await Itinerary.find(query).populate("city", {city: 1, photo: 1})
-            .pupulate('user', {name: 1, lastName: 1, photo:1, country: 1})
+            .populate('user', {name: 1, lastName: 1, photo:1, country: 1})
 
             if(itinerariesFounded){
                 res.status(200).json({
