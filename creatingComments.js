@@ -6,13 +6,13 @@ const Comment = require('./models/Comment');
 const ourComments = [
     {
         comment: "It's Awesome",
-        user: "6312a119918824959c257db2",
-        itinerary: "63191e5019e820ede7918c5f"
+        user: "6319b98af587b99d89bf4e20",
+        itinerary: "6319d9d9d227c639cd7b6733"
     },
     {
         comment: "GREAT!!",
-        user: "6312a13de68737e0c527a1bb",
-        itinerary: "63191e5019e820ede7918c5e"
+        user: "6319b98af587b99d89bf4e1f",
+        itinerary: "6319d9d9d227c639cd7b6734"
     }
 ]
 
