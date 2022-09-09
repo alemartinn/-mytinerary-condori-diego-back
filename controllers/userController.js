@@ -1,13 +1,14 @@
 const User = require('../models/User');
-const crypto = required('crypto');
-const bcryptjs = required('bcryptjs');
+const crypto = require('crypto');
+const bcryptjs = require('bcryptjs');
+const sendMail = require('./sendMail')
 
 const userController ={
 
     signUp: async(req, res) => {
-        const {name, photo, email, password, role, from} = req.body;
+        let {name, photo, mail, password, role, from} = req.body;
         try{
-            let user = await User.findOne({email})
+            let user = await User.findOne({mail})
             if (!user){
                 let logged = false;
                 let verified = false;
@@ -18,23 +19,24 @@ const userController ={
                     // Hash: convertir una password en una password que nadie pueda saber que esta referenciada.
                     // No guardar passwords sin hacer hash.
                     password = bcryptjs.hashSync(password, 10); // 10: nvl seguridad.
-                    user = await new User({name, photo, email, password, role, from, logged, verified, code}).save();
+                    user = await new User({name, photo, mail, password, role, from, logged, verified, code}).save();
+                    sendMail(mail);
                     //Incorporar funcion para envio de mail de verificacion.
                     res.status(201).json({
                         message: "User signed up.",
                         success: true
                     });
-                }else{
+                } else{
                     password = bcryptjs.hashSync(password, 10); // 10: nvl seguridad.
                     verified = false;
-                    user = await new User({name, photo, email, password, role, from: [from], logged, verified, code}).save();
+                    user = await new User({name, photo, mail, password, role, from: [from], logged, verified, code}).save();
                     //Incorporar funcion para envio de mail de verificacion.
                     res.status(201).json({
                         message: "User signed up.",
                         success: true
                     });
                 }
-                user = await new User({name, photo, email, password, role, logged, verified, code}).save();
+                user = await new User({name, photo, mail, password, role, logged, verified, code}).save();
             } else {
                 if (user.from.includes(from)){
                     res.status(200).json({
