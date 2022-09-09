@@ -4,7 +4,7 @@ let schema = new mongoose.Schema({
     name: {type: String, required: true},
     lastName: {type: String, required: true},
     mail: {type: String, required: true},
-    password: {type: array, required: true},
+    password: {type: Array, required: true},
     photo: {type: String, required: true},
     country: {type: String, required: true},
     from: [{type: String, required: true}],
