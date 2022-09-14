@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 let schema = new mongoose.Schema({
-    name: {type: String, required: true, min: 2, max:12},
+    name: {type: String, required: true, min: 2, max:30},
     user: {
         type: mongoose.Types.ObjectId,
         ref: 'users'
