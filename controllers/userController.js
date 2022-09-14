@@ -5,22 +5,52 @@ const sendMail = require('./sendMail');
 const Joi = require('joi');
 
 const validator = Joi.object({
-    name: Joi.string().pattern(/^[a-zA-Z]+$/).min(3).max(12).required(),
-    lastName: Joi.string().pattern(/^[a-zA-Z]+$/).min(3).max(12).required(),
-    photo: Joi.string().uri().required(),
+    name: Joi.string().min(3).max(12).required().messages({
+        'any.required': 'NAME_REQUIRED',
+        'string.empty': 'NAME_REQUIRED',
+        'string.min': 'NAME_TOO_SHORT',
+        'string.max': 'NAME_TOO_LARGE'
+    }),
+    lastName: Joi.string().min(3).max(12).required().messages({
+        'any.required': 'NAME_REQUIRED',
+        'string.empty': 'NAME_REQUIRED',
+        'string.min': 'NAME_TOO_SHORT',
+        'string.max': 'NAME_TOO_LARGE'
+    }),
+    photo: Joi.string().uri().required().messages({
+        'any.required': 'PHOTO_REQUIRED',
+        'string.empty': 'PHOTO_REQUIRED',
+        'string.uri': 'INVALID_URL'
+    }),
     country: Joi.string().min(4).max(56).required(),
-    email: Joi.string().lowercase().email().required().error(new Error('INVALID_EMAIL')),
-    password: Joi.string().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')),
-    role: Joi.string().min(3).max(15).required(),
-    from: Joi.string().min(3).max(15).required()
+    email: Joi.string().email().required().messages({
+        'any.required': 'EMAIL_REQUIRED',
+        'string.empty': 'EMAIL_REQUIRED',
+        'string.email': 'INVALID_EMAIL'
+    }),
+    password: Joi.string().required().min(8).max(50).messages({
+        'any.required': 'PASS_REQUIRED',
+        'string.empty': 'PASS_REQUIRED',
+        'string.min': 'PASS_TOO_SHORT',
+        'string.max': 'PASS_TOO_LARGE',
+    }),
+    role: Joi.string().required().valid('user', 'admin').messages({
+        'any.required': 'ROLE_REQUIRED',
+        'string.empty': 'ROLE_REQUIRED',
+        'any.only': 'ROLE_NOT_ALLOWED'
+    }),
+    from: Joi.string().required().messages({
+        'any.required': 'FROM_REQUIRED',
+        'string.empty': 'FROM_REQUIRED'
+    })
 })
 
 const userController ={
 
     signUp: async(req, res) => {
         try{
-            let result = await validator.validateAsync(req,body)
-            let {name, photo, email, password, role, from} = result;
+            let result = await validator.validateAsync(req.body)
+            let {name, lastName, email, password, photo, country, role, from} = result;
 
             let user = await User.findOne({email})
 
@@ -179,7 +209,29 @@ const userController ={
         catch(error){
             console.log(error);
         }
-    }
+    },
+    signOut: async(req, res) => {
+        const {mail} = req.body
+        try {
+            console.log(mail);
+            let user = await User.findOne({mail})
+          
+            user.loggedIn = false
+            await user.save()
+            
+            res.status(200).json({
+                message: 'singout successfull',
+                success: true
+            })
+
+        } catch(error) {
+            console.log(error);
+            res.status(400).json({
+                message: 'Failed to sign out',
+                success: false
+            })
+        }
+    },
 }
 
 module.exports = userController;
