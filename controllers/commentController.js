@@ -1,8 +1,27 @@
 const Comment = require('../models/Comment');
+const Joi = require('joi');
+
+const validator = Joi.object({
+    comment: Joi.string().required().min(3).max(350).messages({
+        'any.required': 'COMMENT_REQUIRED',
+        'string.empty': 'COMMENT_REQUIRED',
+        'string.min': 'COMMENT_TOO_SHORT',
+        'string.max': 'NAME_TOO_LARGE'
+        }),
+    user: Joi.string().required().messages({
+        'any.required': 'USER_REQUIRED',
+        'string.empty': 'USER_REQUIRED'
+        }),
+    itinerary: Joi.string().required().messages({
+         'any.required': 'ITINERARY_REQUIRED',
+         'string.empty': 'ITINERARY_REQUIRED'
+        })
+})
 
 const commentController = {
     createComment: async(req, res) => {
-        const {comment, user, itinerary} = req.body;
+        const result = await validator.validateAsync(req.body);
+        const {comment, user, itinerary} = result;
         try{
             await new Comment({comment, user, itinerary}).save()
             res.status(201).json({
