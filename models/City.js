@@ -10,7 +10,7 @@ let schema = new mongoose.Schema({
             }
         }},
     population: {type: Number, required: true, min:1000, max:1000000000},
-    fundation: {type: Date, required: true, min:1000, max:2022}
+    foundation: {type: Date, required: true, min:1000, max:2022}
 });
 
 const City = mongoose.model(
