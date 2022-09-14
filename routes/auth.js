@@ -5,7 +5,7 @@ const {createUser, readUser, updateUser, deleteUser, signUp, signOut} = require(
 
 router.post('/', signUp);
 // router.post('/', createUser);
-router.post('/:id', signOut)
+router.post('/signout', signOut)
 router.get('/:id', readUser);
 router.patch('/:id', updateUser);
 router.delete('/:id', deleteUser);
