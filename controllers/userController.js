@@ -1,14 +1,29 @@
 const User = require('../models/User');
 const crypto = require('crypto');
 const bcryptjs = require('bcryptjs');
-const sendMail = require('./sendMail')
+const sendMail = require('./sendMail');
+const Joi = require('joi');
+
+const validator = Joi.object({
+    name: Joi.string().pattern(/^[a-zA-Z]+$/).min(3).max(12).required(),
+    lastName: Joi.string().pattern(/^[a-zA-Z]+$/).min(3).max(12).required(),
+    photo: Joi.string().uri().required(),
+    country: Joi.string().min(4).max(56).required(),
+    email: Joi.string().lowercase().email().required().error(new Error('INVALID_EMAIL')),
+    password: Joi.string().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')),
+    role: Joi.string().min(3).max(15).required(),
+    from: Joi.string().min(3).max(15).required()
+})
 
 const userController ={
 
     signUp: async(req, res) => {
-        let {name, photo, mail, password, role, from} = req.body;
         try{
+            let result = await validator.validateAsync(req,body)
+            let {name, photo, mail, password, role, from} = result;
+
             let user = await User.findOne({mail})
+
             if (!user){
                 let logged = false;
                 let verified = false;
@@ -70,7 +85,26 @@ const userController ={
 
     },
     signOut: async(req, res) => {
+        const {mail} = req.body
 
+        try {
+            let user = await User.findOne({mail})
+          
+            user.loggedIn = false
+            await user.save()
+            
+            res.status(200).json({
+                message: 'singout successfull',
+                success: true
+            })
+
+        } catch(error) {
+            console.log(error);
+            res.status(400).json({
+                message: 'Failed to sign out',
+                success: false
+            })
+        }
     },
     createUser: async(req, res) => {
         const {name,lastName, mail, password, photo, country} = req.body;
