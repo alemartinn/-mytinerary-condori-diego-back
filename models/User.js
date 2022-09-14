@@ -8,7 +8,7 @@ let schema = new mongoose.Schema({
     photo: {type: String, required: true},
     country: {type: String, required: true},
     from: [{type: String, required: true}],
-    logged: {type:Boolean, required: true},
+    loggedIn: {type:Boolean, required: true},
     verified: {type:Boolean, required: true},
     code: {type:String, required:true}
 });
