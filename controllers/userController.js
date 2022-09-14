@@ -70,6 +70,22 @@ const userController ={
 
     },
     signOut: async(req, res) => {
+        const {mail} = req.body
+        try {
+            const user = await User.findOne({mail})
+            if(user) {
+                user.loggedin = false
+                await user.save()
+
+                res.status(200).json({
+                    message: 'singout successfull',
+                    success: true
+                })
+            }
+
+        } catch(error) {
+            console.log(error);
+        }
 
     },
     createUser: async(req, res) => {
