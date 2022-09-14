@@ -2,14 +2,30 @@ const Itinerary = require('../models/Itinerary');
 const Joi = require('joi');
 
 const validator = Joi.object({
-    name: Joi.string().min(2).max(30).alphanum().required(),
+    name: Joi.string().required().min(2).max(30).messages({
+        'any.required': 'NAME_REQUIRED',
+        'string.empty': 'NAME_REQUIRED',
+        'string.min': 'NAME_TOO_SHORT',
+        'string.max': 'NAME_TOO_LARGE'
+    }),
     user: Joi.string().hex().required(),
     city: Joi.string().hex().required(),
-    price: Joi.number().integer().min(0).required(),
+    price: Joi.number().integer().min(0).max(100000).required().messages({
+        'number.base': 'INVALID_PRICE',
+        'any.required': 'PRICE_REQUIRED',
+        'number.empty': 'PRICE_REQUIRED',
+        'number.min': 'INVALID_PRICE',
+        'number.max': 'PRICE_TOO_MUCH'
+    }),
     likes: Joi.array().required(),
     tags: Joi.array().required(),
     duration: Joi.number().min(0).max(12).required(),
-    description: Joi.string().alphanum().min(5).max(100)
+    description: Joi.string().min(5).max(500).messages({
+        'any.required': 'DESCR_REQUIRED',
+        'string.empty': 'DESCR_REQUIRED',
+        'string.min': 'DESCR_TOO_SHORT',
+        'string.max': 'DESCR_TOO_LARGE'
+    })
 })
 
 const itineraryController ={
