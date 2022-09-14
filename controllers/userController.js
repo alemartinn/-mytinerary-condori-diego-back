@@ -20,9 +20,9 @@ const userController ={
     signUp: async(req, res) => {
         try{
             let result = await validator.validateAsync(req,body)
-            let {name, photo, mail, password, role, from} = result;
+            let {name, photo, email, password, role, from} = result;
 
-            let user = await User.findOne({mail})
+            let user = await User.findOne({email})
 
             if (!user){
                 // let code: unique key of user or unique string.
@@ -34,9 +34,9 @@ const userController ={
                     // Hash or hashing: This converts a password on a secure password who any human can't translate it or reference it. 
                     // Don't save passwords without hash it previously.
                     password = bcryptjs.hashSync(password, 10); // Level security 10.
-                    user = await new User({name, lastName, mail, password, photo, country, role, from, loggedIn, verified, code}).save();
-                    //Incorporate function to send a verification mail.
-                    sendMail(mail, code);
+                    user = await new User({name, lastName, email, password, photo, country, role, from, loggedIn, verified, code}).save();
+                    //Incorporate function to send a verification email.
+                    sendMail(email, code);
                     res.status(201).json({
                         message: "User signed up.",
                         success: true
@@ -44,7 +44,7 @@ const userController ={
                 } else{
                     password = bcryptjs.hashSync(password, 10); // Level security 10.
                     verified = false;
-                    user = await new User({name, lastName, mail, password, photo, country, role, from: [from], loggedIn: loggedIn, verified, code}).save();
+                    user = await new User({name, lastName, email, password, photo, country, role, from: [from], loggedIn: loggedIn, verified, code}).save();
                     res.status(201).json({
                         message: "User signed up.",
                         success: true
@@ -89,7 +89,7 @@ const userController ={
                 res.status(200).redirect('https://www.google.com');
             } else {
                 res.status(404).json({
-                    message: "This mail has not a vinculed account yet",
+                    message: "This email has not a vinculed account yet",
                     success: false
                 });
             }
@@ -104,10 +104,10 @@ const userController ={
     },
     signIn: async(req, res) => {
 
-        const {mail, password, from} = req.body;
+        const {email, password, from} = req.body;
         
         try {
-            const user = await User.findOne({mail});
+            const user = await User.findOne({email});
 
             if(!user){
                 res.status(404).json({
@@ -128,7 +128,7 @@ const userController ={
                             id: user._id,
                             role: user.role,
                             name: user.name,
-                            mail: user.mail,
+                            email: user.email,
                             photo: user.photo,
                             from: user.from
                         }
@@ -153,7 +153,7 @@ const userController ={
                             id: user._id,
                             role: user.role,
                             name: user.name,
-                            mail: user.mail,
+                            email: user.email,
                             photo: user.photo,
                             from: user.from
                         }
