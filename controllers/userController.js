@@ -211,10 +211,9 @@ const userController ={
         }
     },
     signOut: async(req, res) => {
-        const {mail} = req.body
+        const {email} = req.body
         try {
-            console.log(mail);
-            let user = await User.findOne({mail})
+            let user = await User.findOne({email})
           
             user.loggedIn = false
             await user.save()
