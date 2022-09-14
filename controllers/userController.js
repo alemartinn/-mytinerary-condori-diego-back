@@ -72,21 +72,28 @@ const userController ={
     signOut: async(req, res) => {
         const {mail} = req.body
         try {
-            const user = await User.findOne({mail})
+            const user = await User.findOne({mail:mail})
             if(user) {
-                user.loggedin = false
+                user.loggedIn = false
                 await user.save()
 
                 res.status(200).json({
                     message: 'singout successfull',
                     success: true
                 })
+            } else {
+                res.status(404).json({
+                    message: 'User not found',
+                    success: false
+                })
             }
-
         } catch(error) {
             console.log(error);
+            res.status(400).json({
+                message: 'Failed to sign out',
+                success: false
+            })
         }
-
     },
     createUser: async(req, res) => {
         const {name,lastName, mail, password, photo, country} = req.body;
