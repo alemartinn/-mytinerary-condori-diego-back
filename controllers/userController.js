@@ -1,102 +1,237 @@
 const User = require('../models/User');
+const crypto = require('crypto');
+const bcryptjs = require('bcryptjs');
+const sendMail = require('./sendMail');
+const Joi = require('joi');
+
+const validator = Joi.object({
+    name: Joi.string().min(3).max(12).required().messages({
+        'any.required': 'NAME_REQUIRED',
+        'string.empty': 'NAME_REQUIRED',
+        'string.min': 'NAME_TOO_SHORT',
+        'string.max': 'NAME_TOO_LARGE'
+    }),
+    lastName: Joi.string().min(3).max(12).required().messages({
+        'any.required': 'NAME_REQUIRED',
+        'string.empty': 'NAME_REQUIRED',
+        'string.min': 'NAME_TOO_SHORT',
+        'string.max': 'NAME_TOO_LARGE'
+    }),
+    photo: Joi.string().uri().required().messages({
+        'any.required': 'PHOTO_REQUIRED',
+        'string.empty': 'PHOTO_REQUIRED',
+        'string.uri': 'INVALID_URL'
+    }),
+    country: Joi.string().min(4).max(56).required(),
+    email: Joi.string().email().required().messages({
+        'any.required': 'EMAIL_REQUIRED',
+        'string.empty': 'EMAIL_REQUIRED',
+        'string.email': 'INVALID_EMAIL'
+    }),
+    password: Joi.string().required().min(8).max(50).messages({
+        'any.required': 'PASS_REQUIRED',
+        'string.empty': 'PASS_REQUIRED',
+        'string.min': 'PASS_TOO_SHORT',
+        'string.max': 'PASS_TOO_LARGE',
+    }),
+    role: Joi.string().required().valid('user', 'admin').messages({
+        'any.required': 'ROLE_REQUIRED',
+        'string.empty': 'ROLE_REQUIRED',
+        'any.only': 'ROLE_NOT_ALLOWED'
+    }),
+    from: Joi.string().required().messages({
+        'any.required': 'FROM_REQUIRED',
+        'string.empty': 'FROM_REQUIRED'
+    })
+})
 
 const userController ={
-    createUser: async(req, res) => {
-        const {name,lastName, mail, password, photo, country} = req.body;
-        try{
-            let userCreated = await new User({name,lastName, mail, password, photo, country}).save();
-            res.status(201).json({
-                message: 'The User has been created.',
-                response: userCreated._id,
-                success: true
-            });
-        } catch(error){
-            res.status(400).json({
-                message: "Sorry but we couldn't create the user. Try it again." 
-            });
-        }
-    },
-    readUser: async(req, res) => {
-        let {id} = req.params;
-        try{
-            let userFounded = await User.findOne({_id: id});
 
-            if (userFounded) {
-                res.status(200).json({
-                    message: "Here you have the user.",
-                    response: userFounded,
-                    success: true
-                });
+    signUp: async(req, res) => {
+        try{
+            let result = await validator.validateAsync(req.body)
+            let {name, lastName, email, password, photo, country, role, from} = result;
+
+            let user = await User.findOne({email})
+
+            if (!user){
+                // let code: unique key of user or unique string.
+                let code = crypto.randomBytes(15).toString('hex'); 
+                let loggedIn = false;
+                let verified = false;
+                
+                if (from === 'form'){
+                    // Hash or hashing: This converts a password on a secure password who any human can't translate it or reference it. 
+                    // Don't save passwords without hash it previously.
+                    password = bcryptjs.hashSync(password, 10); // Level security 10.
+                    user = await new User({name, lastName, email, password, photo, country, role, from, loggedIn, verified, code}).save();
+                    //Incorporate function to send a verification email.
+                    sendMail(email, code);
+                    res.status(201).json({
+                        message: "User signed up.",
+                        success: true
+                    });
+                } else{
+                    password = bcryptjs.hashSync(password, 10); // Level security 10.
+                    verified = false;
+                    user = await new User({name, lastName, email, password, photo, country, role, from: [from], loggedIn: loggedIn, verified, code}).save();
+                    res.status(201).json({
+                        message: "User signed up.",
+                        success: true
+                    });
+                }
             } else {
-                res.status(404).json({
-                    message: "There isn't a user with that name.",
-                    response: userFounded,
-                    success: true
-                })
+                if (user.from.includes(from)){
+                    res.status(200).json({
+                        message: "User already registered",
+                        success: false // Porque no completo el registro.
+                    });
+                } else{
+                    user.from.push(from); //Agrego nuevo origen de registro.
+                    user.verified = true;
+                    user.password.push(bcryptjs.hashSync(password,10));
+                    await user.save();
+                    res.status(201).json({
+                        message: "User signed up with " + from,
+                        success: true
+                    });
+                }
             }
-        } catch(error){
+        }
+        catch(error){
             console.log(error);
             res.status(400).json({
-                message: "We couldn't get the user, try it again.",
-                response: null,
+                message: "Couldn't signed up",
                 success: false
             });
         }
     },
-    updateUser: async(req, res) => {
-        const {id} = req.params;
-        const myUser = req.body;
+    //unique and random code generated by signup method
+    verifyMail: async(req, res) => {
+        
+        const {code} = req.params;
+        let userFounded = await User.findOne({code});
 
         try{
-            let user = await User.findOneAndUpdate({_id: id}, myUser, {new: true})
-            if(user) {
-                res.status(200).json({
-                    message: "Your user has been updated",
-                    response: user,
-                    success: true
-                })
+            if (userFounded){
+                userFounded.verified = true;
+                await userFounded.save();
+                res.status(200).redirect('https://www.google.com');
             } else {
+                res.status(404).json({
+                    message: "This email has not a vinculed account yet",
+                    success: false
+                });
+            }
+        }
+        catch(error){
+            console.log(error);
+            res.status(400).json({
+                message: "Something failed, try it again",
+                success: false
+            });
+        }
+    },
+    //Method to sign in a user.
+    signIn: async(req, res) => {
+
+        const {email, password, from} = req.body;
+        
+        try {
+            const user = await User.findOne({email});
+
+            if(!user){
+                res.status(404).json({
+                    message: "User doesn't exist"
+                })
+            } else if (!user.verified){
                 res.status(400).json({
-                    message: "There isn't user to update",
-                    response: user,
+                    message: "Please, verify your account",
                     success: false
                 })
+            } else {
+                //Compare each element(password from db)
+                const checkPass = user.password.filter(element=> bcryptjs.compareSync(password, element));
+                if (from === 'form'){
+                    if(checkPass.length > 0){
+
+                        const userLogged = {
+                            id: user._id,
+                            role: user.role,
+                            name: user.name,
+                            email: user.email,
+                            photo: user.photo,
+                            from: user.from
+                        }
+                        user.loggedIn = true;
+                        await user.save();
+
+                        res.status(200).json({
+                            message: 'Welcome '+user.name,
+                            response: {user: userLogged},
+                            success: true
+                        });
+                    }
+                    else{
+                        res.status(400).json({
+                            message: "Failed to sign in",
+                            success: false
+                        });
+                    }
+                } else {
+                    if(checkPass.length > 0){
+                        const userLogged = {
+                            id: user._id,
+                            role: user.role,
+                            name: user.name,
+                            email: user.email,
+                            photo: user.photo,
+                            from: user.from
+                        }
+                        user.loggedIn = true;
+                        await user.save();
+
+                        res.status(200).json({
+                            message: 'Welcome ' + user.name,
+                            response: {user: userLogged},
+                            success: true
+                        });
+                    }
+                    else{
+                        res.status(400).json({
+                            message: "Invalid credentials",
+                            success: false
+                        });
+                    }
+                }
             }
+        }
+        catch(error){
+            console.log(error);
+        }
+    },
+    signOut: async(req, res) => {
+        const {mail} = req.body
+        try {
+            console.log(mail);
+            let user = await User.findOne({mail})
+          
+            user.loggedIn = false
+            await user.save()
+            
+            res.status(200).json({
+                message: 'singout successfull',
+                success: true
+            })
+
         } catch(error) {
             console.log(error);
             res.status(400).json({
-                message: "We couldn't update the user, try it again",
+                message: 'Failed to sign out',
                 success: false
             })
         }
     },
-    deleteUser: async(req, res) => {
-        let {id} = req.params;
-        
-        try{
-            let userDeleted = await User.findByIdAndRemove(id);
-
-            if (userDeleted) {
-                res.status(200).json({
-                    message: "You deleted the user.",
-                    response: userDeleted,
-                    success: true
-                });
-            } else {
-                res.status(400).json({
-                    message: "There isn't user to delete.",
-                    response: userDeleted,
-                    success: false
-                });
-            }
-        } catch(error){
-            console.log(error);
-            res.status(400).json({
-                message: "We couldn't delete the user, try it again.",
-                success: false
-            });
-        }
-    }
 }
 
 module.exports = userController;

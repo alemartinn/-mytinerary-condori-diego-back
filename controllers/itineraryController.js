@@ -1,10 +1,38 @@
 const Itinerary = require('../models/Itinerary');
+const Joi = require('joi');
+
+const validator = Joi.object({
+    name: Joi.string().required().min(2).max(30).messages({
+        'any.required': 'NAME_REQUIRED',
+        'string.empty': 'NAME_REQUIRED',
+        'string.min': 'NAME_TOO_SHORT',
+        'string.max': 'NAME_TOO_LARGE'
+    }),
+    user: Joi.string().hex().required(),
+    city: Joi.string().hex().required(),
+    price: Joi.number().integer().min(0).max(100000).required().messages({
+        'number.base': 'INVALID_PRICE',
+        'any.required': 'PRICE_REQUIRED',
+        'number.empty': 'PRICE_REQUIRED',
+        'number.min': 'INVALID_PRICE',
+        'number.max': 'PRICE_TOO_MUCH'
+    }),
+    likes: Joi.array().required(),
+    tags: Joi.array().required(),
+    duration: Joi.number().min(0).max(12).required(),
+    description: Joi.string().min(5).max(500).messages({
+        'any.required': 'DESCR_REQUIRED',
+        'string.empty': 'DESCR_REQUIRED',
+        'string.min': 'DESCR_TOO_SHORT',
+        'string.max': 'DESCR_TOO_LARGE'
+    })
+})
 
 const itineraryController ={
     createItinerary: async(req, res) => {
-        const {name, user, city, price, likes, tags, duration} = req.body;
         try{
-            let itineraryCreated = await new Itinerary({name, user, city, price, likes, tags, duration}).save();
+            const result = await validator.validateAsync(req.body);
+            let itineraryCreated = await new Itinerary(result).save();
             res.status(201).json({
                 message: 'The itinerary has been created.',
                 response: itineraryCreated._id,
