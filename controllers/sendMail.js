@@ -1,14 +1,14 @@
 const nodemailer = require('nodemailer');//Nodemailer sends mails to verify.
 const { google } = require('googleapis'); //This contains methods and properties from google.
 const OAuth = google.auth.OAuth2; //
-const { ID_CLIENTE_GOOGLE, SECRET_CLIENTE_GOOGLE, URL_GOOGLE, REFRESH_GOOGLE, USER_GOOGLE, TYPE_GOOGLE } = process.env;
+const { ID_CLIENT_GOOGLE, SECRET_CLIENT_GOOGLE, URL_GOOGLE, REFRESH_GOOGLE, USER_GOOGLE, TYPE_GOOGLE } = process.env;
 
 const sendMail = async (mailUser, code) => {
 
     //Create the credential
     const client = new OAuth(
-        ID_CLIENTE_GOOGLE, 
-        SECRET_CLIENTE_GOOGLE, 
+        ID_CLIENT_GOOGLE, 
+        SECRET_CLIENT_GOOGLE, 
         URL_GOOGLE
     );
 
@@ -26,8 +26,8 @@ const sendMail = async (mailUser, code) => {
         auth: {
             user: USER_GOOGLE,
             type: TYPE_GOOGLE,
-            clientId: ID_CLIENTE_GOOGLE,
-            clientSecret: SECRET_CLIENTE_GOOGLE,
+            clientId: ID_CLIENT_GOOGLE,
+            clientSecret: SECRET_CLIENT_GOOGLE,
             refreshToken: REFRESH_GOOGLE,
             accessToken: accessToken
         },
