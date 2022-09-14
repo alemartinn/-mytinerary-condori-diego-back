@@ -1,13 +1,11 @@
 var express = require('express');
 var router = express.Router();
 
-const {createUser, readUser, updateUser, deleteUser, signUp, signOut} = require('../controllers/userController');
+const { signUp, verifyMail, signIn, signOut } = require('../controllers/userController');
 
-router.post('/', signUp);
-// router.post('/', createUser);
-router.post('/signout', signOut)
-router.get('/:id', readUser);
-router.patch('/:id', updateUser);
-router.delete('/:id', deleteUser);
+router.post('/signup', signUp);
+router.post('/signin', signIn);
+router.post('/signout', signOut);
+router.get('/verify/:code', verifyMail);
 
 module.exports = router;

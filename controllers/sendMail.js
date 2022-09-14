@@ -1,23 +1,27 @@
-const nodemailer = require('nodemailer');//se encarga de enviar los mails a verificar
-const {google} = require('googleapis'); //contiene metodos y propiedades
+const nodemailer = require('nodemailer');//Nodemailer sends mails to verify.
+const { google } = require('googleapis'); //This contains methods and properties from google.
 const OAuth = google.auth.OAuth2; //
-const {ID_CLIENTE_GOOGLE, SECRET_CLIENTE_GOOGLE, URL_GOOGLE, REFRESH_GOOGLE, USER_GOOGLE, TYPE_GOOGLE} = process.env;
+const { ID_CLIENTE_GOOGLE, SECRET_CLIENTE_GOOGLE, URL_GOOGLE, REFRESH_GOOGLE, USER_GOOGLE, TYPE_GOOGLE } = process.env;
 
 const sendMail = async (mailUser, code) => {
 
+    //Create the credential
     const client = new OAuth(
         ID_CLIENTE_GOOGLE, 
         SECRET_CLIENTE_GOOGLE, 
         URL_GOOGLE
     );
 
+    //Setting to refresh token
     client.setCredentials({
         refresh_token: REFRESH_GOOGLE
     });
 
+    //Now we get the accessToken which allow us to connect with google's api
     const accessToken = client.getAccessToken();
 
-    const mail = nodemailer.createTransport({
+    //Configuration of message service.
+    const transport = nodemailer.createTransport({
         service: 'gmail',
         auth: {
             user: USER_GOOGLE,
@@ -27,18 +31,20 @@ const sendMail = async (mailUser, code) => {
             refreshToken: REFRESH_GOOGLE,
             accessToken: accessToken
         },
-        tls: { //transport layer security
-            rejectUnauthorized: false //para evitar que bloquee el antivirus
+        tls: { //Transport layer security
+            rejectUnauthorized: false //This prevents that antivirus block it
         }
     });
     
+    // Object to send mail to user.
     const mailOption = {
         from: USER_GOOGLE,
         to: mailUser,
-        subject: 'Verify MyTinerary account',
+        subject: 'Verify your MyTinerary account',
         html: `
             <div>
-
+                <h1> Hola ${mailUser} </h1>
+                <a href='http://localhost:4000/auth/verify/${code}'> Click here to verify your account </a>
             </div>
         ` 
         //codigo HTML puro que va a renderizar en el cuerpo del mail.
@@ -46,9 +52,9 @@ const sendMail = async (mailUser, code) => {
         //ese link o endpoint se conectara con el metodo correspondiente para verificar la cuenta.
     };
 
-    await transport.sendMail(
-        mailOption, 
-        (error,response)=>error ? console.log(error) : console.log('Check mail or Ok')
+    transport.sendMail(
+        mailOption,
+        (error, response) => error ? console.log(error) : console.log('Check mail or Ok')
     );
 };
 
