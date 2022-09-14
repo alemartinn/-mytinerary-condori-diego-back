@@ -87,6 +87,7 @@ const userController ={
             });
         }
     },
+    //Method to sign in a user.
     signIn: async(req, res) => {
 
         const {mail, password, from} = req.body;
