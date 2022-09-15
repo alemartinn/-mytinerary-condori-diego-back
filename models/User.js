@@ -21,7 +21,8 @@ let schema = new mongoose.Schema({
     from: [{type: String, required: true,  min: 4, max:59}],
     loggedIn: {type:Boolean, required: true},
     verified: {type:Boolean, required: true},
-    code: {type:String, required:true}
+    code: {type:String, required:true},
+    role: {type:String, required:true}
 });
 
 const User = mongoose.model('users',schema);
