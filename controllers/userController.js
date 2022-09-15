@@ -5,24 +5,22 @@ const sendMail = require('./sendMail');
 const Joi = require('joi');
 
 const validator = Joi.object({
-    name: Joi.string().min(3).max(12).required().messages({
+    name: Joi.string().min(3).max(100).required().messages({
         'any.required': 'NAME_REQUIRED',
         'string.empty': 'NAME_REQUIRED',
         'string.min': 'NAME_TOO_SHORT',
         'string.max': 'NAME_TOO_LARGE'
     }),
-    lastName: Joi.string().min(3).max(12).required().messages({
-        'any.required': 'NAME_REQUIRED',
-        'string.empty': 'NAME_REQUIRED',
-        'string.min': 'NAME_TOO_SHORT',
-        'string.max': 'NAME_TOO_LARGE'
+    lastName: Joi.string().min(3).max(100).messages({
+        'string.min': 'LASTNAME_TOO_SHORT',
+        'string.max': 'LASTNAME_TOO_LARGE'
     }),
     photo: Joi.string().uri().required().messages({
         'any.required': 'PHOTO_REQUIRED',
         'string.empty': 'PHOTO_REQUIRED',
         'string.uri': 'INVALID_URL'
     }),
-    country: Joi.string().min(4).max(56).required(),
+    country: Joi.string().min(4).max(100),
     email: Joi.string().email().required().messages({
         'any.required': 'EMAIL_REQUIRED',
         'string.empty': 'EMAIL_REQUIRED',
@@ -73,7 +71,7 @@ const userController ={
                     });
                 } else{
                     password = bcryptjs.hashSync(password, 10); // Level security 10.
-                    verified = false;
+                    verified = true;
                     user = await new User({name, lastName, email, password, photo, country, role, from: [from], loggedIn: loggedIn, verified, code}).save();
                     res.status(201).json({
                         message: "User signed up.",

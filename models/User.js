@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 
 let schema = new mongoose.Schema({
-    name: {type: String, required: true},
-    lastName: {type: String, required: true},
+    name: {type: String, required: true, min: 3, max: 100},
+    lastName: {type: String, min: 3, max: 100},
     email: {
         type: String,
         required: true,
@@ -17,7 +17,7 @@ let schema = new mongoose.Schema({
                     throw new Error('Must start with http')
                 }
             }},
-    country: {type: String, required: true, min: 4, max:30},
+    country: {type: String, min: 4, max: 100},
     from: [{type: String, required: true,  min: 4, max:59}],
     loggedIn: {type:Boolean, required: true},
     verified: {type:Boolean, required: true},
