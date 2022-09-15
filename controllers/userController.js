@@ -166,7 +166,7 @@ const userController ={
 
                         res.status(200).json({
                             message: 'Welcome '+user.name,
-                            response: {user: userLogged},
+                            response: userLogged,
                             success: true
                         });
                     }
@@ -191,7 +191,7 @@ const userController ={
 
                         res.status(200).json({
                             message: 'Welcome ' + user.name,
-                            response: {user: userLogged},
+                            response: userLogged,
                             success: true
                         });
                     }
