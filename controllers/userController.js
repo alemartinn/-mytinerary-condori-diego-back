@@ -6,40 +6,40 @@ const Joi = require('joi');
 
 const validator = Joi.object({
     name: Joi.string().min(3).max(100).required().messages({
-        'any.required': 'NAME_REQUIRED',
-        'string.empty': 'NAME_REQUIRED',
-        'string.min': 'NAME_TOO_SHORT',
-        'string.max': 'NAME_TOO_LARGE'
+        'any.required': 'Name required',
+        'string.empty': 'Name required',
+        'string.min': 'The name is too short',
+        'string.max': 'The name is too large'
     }),
     lastName: Joi.string().min(3).max(100).messages({
-        'string.min': 'LASTNAME_TOO_SHORT',
-        'string.max': 'LASTNAME_TOO_LARGE'
+        'string.min': 'The lastname is too short',
+        'string.max': 'The lastname is too large'
     }),
     photo: Joi.string().uri().required().messages({
-        'any.required': 'PHOTO_REQUIRED',
-        'string.empty': 'PHOTO_REQUIRED',
-        'string.uri': 'INVALID_URL'
+        'any.required': 'Photo required',
+        'string.empty': 'Photo required',
+        'string.uri': 'Invalid URL'
     }),
     country: Joi.string().min(4).max(100),
     email: Joi.string().email().required().messages({
-        'any.required': 'EMAIL_REQUIRED',
-        'string.empty': 'EMAIL_REQUIRED',
-        'string.email': 'INVALID_EMAIL'
+        'any.required': 'Email Required',
+        'string.empty': 'Email Required',
+        'string.email': 'Invalid email'
     }),
     password: Joi.string().required().min(8).max(50).messages({
-        'any.required': 'PASS_REQUIRED',
-        'string.empty': 'PASS_REQUIRED',
-        'string.min': 'PASS_TOO_SHORT',
-        'string.max': 'PASS_TOO_LARGE',
+        'any.required': 'Pass required',
+        'string.empty': 'Pass required',
+        'string.min': 'Password too short',
+        'string.max': 'Password too large',
     }),
     role: Joi.string().required().valid('user', 'admin').messages({
-        'any.required': 'ROLE_REQUIRED',
-        'string.empty': 'ROLE_REQUIRED',
-        'any.only': 'ROLE_NOT_ALLOWED'
+        'any.required': 'Role Required',
+        'string.empty': 'Role Required',
+        'any.only': 'Role not allowed'
     }),
     from: Joi.string().required().messages({
-        'any.required': 'FROM_REQUIRED',
-        'string.empty': 'FROM_REQUIRED'
+        'any.required': 'From required',
+        'string.empty': 'From required'
     })
 })
 
@@ -67,6 +67,14 @@ const userController ={
                     sendMail(email, code);
                     res.status(201).json({
                         message: "User signed up.",
+                        response: {
+                            name,
+                            lastName,
+                            email,
+                            photo,
+                            role,
+                            verified
+                        },
                         success: true
                     });
                 } else{
@@ -75,13 +83,23 @@ const userController ={
                     user = await new User({name, lastName, email, password, photo, country, role, from: [from], loggedIn: loggedIn, verified, code}).save();
                     res.status(201).json({
                         message: "User signed up.",
+                        response: {
+                            name,
+                            lastName,
+                            email,
+                            photo,
+                            role,
+                            verified
+                        },
                         success: true
                     });
                 }
             } else {
                 if (user.from.includes(from)){
+                    error = {details: [{message: "User already registered here"}]}
                     res.status(200).json({
                         message: "User already registered",
+                        response: error,
                         success: false // Porque no completo el registro.
                     });
                 } else{
@@ -91,6 +109,14 @@ const userController ={
                     await user.save();
                     res.status(201).json({
                         message: "User signed up with " + from,
+                        response: {
+                            name,
+                            lastName,
+                            email,
+                            photo,
+                            role,
+                            verified
+                        },
                         success: true
                     });
                 }
@@ -100,6 +126,7 @@ const userController ={
             console.log(error);
             res.status(400).json({
                 message: "Couldn't signed up",
+                response: error,
                 success: false
             });
         }
@@ -140,11 +167,12 @@ const userController ={
 
             if(!user){
                 res.status(404).json({
-                    message: "User doesn't exist"
+                    message: "Please, send an email and password correctly",
+                    success: false
                 })
             } else if (!user.verified){
                 res.status(400).json({
-                    message: "Please, verify your account",
+                    message: "You have created an account, please verify it with your email",
                     success: false
                 })
             } else {
@@ -172,7 +200,7 @@ const userController ={
                     }
                     else{
                         res.status(400).json({
-                            message: "Failed to sign in",
+                            message: "User or password incorrect",
                             success: false
                         });
                     }
@@ -206,6 +234,11 @@ const userController ={
         }
         catch(error){
             console.log(error);
+            res.status(400).json({
+                message: "Couldn't signed in",
+                response: error,
+                success: false
+            });
         }
     },
     signOut: async(req, res) => {
