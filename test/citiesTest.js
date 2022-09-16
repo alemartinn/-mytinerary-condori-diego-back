@@ -1,3 +1,4 @@
+/*
 const request = require('supertest');
 const app = require('../app')
 const {assert} = require('chai')
@@ -23,7 +24,7 @@ describe('POST /cities', function() {
             .then(response => { //way 3
                 id = response.body.response; //3
                 assert.isString(response.body.response); //3
-                done(); //3
+                done() //3
             }) //3
     })
     it('Must respond with 400 status code', function(done) {
@@ -37,7 +38,7 @@ describe('POST /cities', function() {
             // })
             .then(response => {
                 // assert.isString(response.body.response);
-                done();
+                done()
             })
     })
 
@@ -51,3 +52,4 @@ describe(`DELETE /cities/${id}`, function() {
             .expect(200, done)
     })
 } )
+*/
