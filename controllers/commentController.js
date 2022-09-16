@@ -88,5 +88,59 @@ const commentController = {
             })
         }
     },
+    updateComment: async(req, res) => {
+        const {id} = req.params;
+        const mytinerary = req.body;
+
+        try{
+            let comment = await Comment.findOneAndUpdate({_id: id}, mytinerary, {new: true})
+            if(comment) {
+                res.status(200).json({
+                    message: "Your comment has been updated",
+                    response: comment,
+                    success: true
+                })
+            } else {
+                res.status(400).json({
+                    message: "There isn't comment to update",
+                    response: comment,
+                    success: false
+                })
+            }
+        } catch(error) {
+            console.log(error);
+            res.status(400).json({
+                message: "We couldn't update the comment, try it again",
+                success: false
+            })
+        }
+    },
+    deleteComment: async(req, res) => {
+        let {id} = req.params;
+        
+        try{
+            let commentDeleted = await Comment.findByIdAndRemove(id);
+
+            if (commentDeleted) {
+                res.status(200).json({
+                    message: "You deleted the comment.",
+                    response: commentDeleted,
+                    success: true
+                });
+            } else {
+                res.status(400).json({
+                    message: "There isn't delete to comment.",
+                    response: commentDeleted,
+                    success: false
+                });
+            }
+        } catch(error){
+            console.log(error);
+            res.status(400).json({
+                message: "We couldn't delete the comment, try it again.",
+                success: false
+            });
+        }
+    }
 }
 module.exports = commentController
