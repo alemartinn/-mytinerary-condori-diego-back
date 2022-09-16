@@ -20,7 +20,7 @@ const { assert } = require('chai')
 
     it('Must respond with 400 status code', function(done){
         request(app)
-            .post('/signin')
+            .post('/auth/signin')
             .send({
                 mail:"alexeg147@gmail.com",
                 password: "nosoyale",
@@ -32,12 +32,8 @@ const { assert } = require('chai')
 
     it('Must respond with 404 status code', function(done){
         request(app)
-            .post('/signin')
+            .post('/auth/signin')
             .send({})
             .expect(404, done)
-
-
     })
-
-
-     })
+})
