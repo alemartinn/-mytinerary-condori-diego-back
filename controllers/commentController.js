@@ -90,10 +90,10 @@ const commentController = {
     },
     updateComment: async(req, res) => {
         const {id} = req.params;
-        const mytinerary = req.body;
+        const mycomment = req.body;
 
         try{
-            let comment = await Comment.findOneAndUpdate({_id: id}, mytinerary, {new: true})
+            let comment = await Comment.findOneAndUpdate({_id: id}, mycomment, {new: true})
             if(comment) {
                 res.status(200).json({
                     message: "Your comment has been updated",
