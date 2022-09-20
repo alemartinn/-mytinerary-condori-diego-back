@@ -100,10 +100,10 @@ const userController ={
                     res.status(200).json({
                         message: "User already registered",
                         response: error,
-                        success: false // Porque no completo el registro.
+                        success: false // Because doesn't complete the register.
                     });
                 } else{
-                    user.from.push(from); //Agrego nuevo origen de registro.
+                    user.from.push(from); //Add new register origin.
                     user.verified = true;
                     user.password.push(bcryptjs.hashSync(password,10));
                     await user.save();
@@ -141,7 +141,7 @@ const userController ={
             if (userFounded){
                 userFounded.verified = true;
                 await userFounded.save();
-                res.status(200).redirect('https://www.google.com');
+                res.status(200).redirect('http://localhost:4000/verified-account');
             } else {
                 res.status(404).json({
                     message: "This email has not a vinculed account yet",
@@ -157,9 +157,9 @@ const userController ={
             });
         }
     },
-    //Method to sign in a user.
+    //Method to sign in an user.
     signIn: async(req, res) => {
-
+        
         const {email, password, from} = req.body;
         
         try {
