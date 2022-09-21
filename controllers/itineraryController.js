@@ -40,7 +40,6 @@ const itineraryController ={
     createItinerary: async(req, res) => {
         try{
             const result = await validator.validateAsync(req.body);
-            console.log(result);
             let itineraryCreated = await new Itinerary(result).save();
             res.status(201).json({
                 message: 'The itinerary has been created.',
@@ -86,11 +85,39 @@ const itineraryController ={
             });
         }
     },
+    getOneItinerary: async(req,res) => {
+        const {id} = req.params;
+        try{
+            let itineraryFounded = await Itinerary.findOne({_id: id});
+            if (itineraryFounded){
+                res.status(200).json({
+                    message: "We found your itinerary",
+                    response: itineraryFounded,
+                    success: true
+                })
+            } else {
+                res.status(404).json({
+                    message: "We didn't find your itinerary",
+                    response: itineraryFounded,
+                    success: false 
+                })
+            }
+        }
+        catch(error){
+            console.log(error)
+            res.status(400).json({
+                message: "We couldn't get the itinerary, try it again",
+                response: error,
+                success: false
+            })
+        }
+    }
+    ,
     updateItinerary: async(req, res) => {
         const {id} = req.params;
-        const mytinerary = req.body;
 
         try{
+            let mytinerary = await validator.validateAsync(req.body);
             let itinerary = await Itinerary.findOneAndUpdate({_id: id}, mytinerary, {new: true})
             if(itinerary) {
                 res.status(200).json({
@@ -108,7 +135,7 @@ const itineraryController ={
         } catch(error) {
             console.log(error);
             res.status(400).json({
-                message: "We couldn't update the itinerary, try it again",
+                message: error.details[0].message,
                 success: false
             })
         }
