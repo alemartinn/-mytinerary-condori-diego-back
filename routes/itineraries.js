@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 const passport = require('../config/passport');
 
-const {createItinerary, getAllItineraries, updateItinerary, deleteItinerary} = require('../controllers/itineraryController');
+const {createItinerary, getAllItineraries, updateItinerary, deleteItinerary,likeDislike} = require('../controllers/itineraryController');
 
 router.get('/', getAllItineraries)
 router.post('/', createItinerary);
