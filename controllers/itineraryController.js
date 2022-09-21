@@ -1,5 +1,6 @@
 const Itinerary = require('../models/Itinerary');
 const Joi = require('joi');
+const { response } = require('express');
 
 const validator = Joi.object({
     name: Joi.string().required().min(2).max(30).messages({
@@ -8,18 +9,26 @@ const validator = Joi.object({
         'string.min': 'NAME_TOO_SHORT',
         'string.max': 'NAME_TOO_LARGE'
     }),
-    user: Joi.string().hex().required(),
-    city: Joi.string().hex().required(),
+    user: Joi.string().required(),
+    city: Joi.string().required(),
     price: Joi.number().integer().min(0).max(100000).required().messages({
         'number.base': 'INVALID_PRICE',
         'any.required': 'PRICE_REQUIRED',
         'number.empty': 'PRICE_REQUIRED',
-        'number.min': 'INVALID_PRICE',
+        'number.min': 'INVALID_MIN_PRICE',
         'number.max': 'PRICE_TOO_MUCH'
     }),
-    likes: Joi.array().required(),
-    tags: Joi.array().required(),
-    duration: Joi.number().min(0).max(12).required(),
+    likes: Joi.array(),
+    tags: Joi.array().required().messages({
+        'any.required': 'TAGS_REQUIRED',
+        'array.empty': 'TAGS_REQUIRED'
+    }),
+    duration: Joi.number().min(0).max(12).required().messages({
+        'any.required': 'DURATION_REQUIRED',
+        'number.empty': 'DURATION_REQUIRED',
+        'number.min': 'INVALID_MIN_DURAT',
+        'number.max': 'DURAT_TOO_MUCH'
+    }),
     description: Joi.string().min(5).max(500).messages({
         'any.required': 'DESCR_REQUIRED',
         'string.empty': 'DESCR_REQUIRED',
@@ -32,6 +41,7 @@ const itineraryController ={
     createItinerary: async(req, res) => {
         try{
             const result = await validator.validateAsync(req.body);
+            console.log(result);
             let itineraryCreated = await new Itinerary(result).save();
             res.status(201).json({
                 message: 'The itinerary has been created.',
@@ -40,8 +50,9 @@ const itineraryController ={
             });
         } catch(error){
             res.status(400).json({
-                message: "Sorry but we couldn't create the itinerary. Try it again.",
-                success: false
+                message: error.details[0].message, //"Sorry but we couldn't create the itinerary. Try it again.",
+                success: false,
+                response: null
             });
         }
     },
