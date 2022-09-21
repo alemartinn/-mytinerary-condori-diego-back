@@ -139,6 +139,39 @@ const itineraryController ={
                 success: false
             });
         }
+    },
+    likeDislike: async(req,res) => {
+        const {id} = req.user
+        const {idItinerary} = req.params
+        try {
+            let itinerary = await Itinerary.findOne({_id: idItinerary})
+            if (itinerary && !itinerary.likes.includes(id)){
+                await Itinerary.findOneAndUpdate({_id:idItinerary}, {$push:{likes:id}}, {new:true})
+                res.status(200).json({
+                message: "Like",
+                response: itinerary,
+                success: true
+                })
+            } else if (itinerary && itinerary.likes.includes(id)){
+                await Itinerary.findOneAndUpdate({_id:idItinerary}, {$pull:{likes:id}}, {new:true})
+                res.status(200).json({
+                message: "Dislike",
+                response: itinerary,
+                success: true
+                })
+            } else {
+                res.status(404).json({
+                    message: "Itinerary not found",
+                    success: false, 
+                  });
+            }
+        } catch (error) {
+            console.log(error);
+            res.status(400).json({
+                message: error,
+                success: false
+            })
+        }
     }
 }
 
