@@ -136,7 +136,7 @@ const itineraryController ={
         } catch(error) {
             console.log(error);
             res.status(400).json({
-                message: "We couldn't update the itinerary, try it again",
+                message: error.details[0].message,
                 success: false
             })
         }
