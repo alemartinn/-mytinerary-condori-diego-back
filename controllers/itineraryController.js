@@ -40,7 +40,6 @@ const itineraryController ={
     createItinerary: async(req, res) => {
         try{
             const result = await validator.validateAsync(req.body);
-            console.log(result);
             let itineraryCreated = await new Itinerary(result).save();
             res.status(201).json({
                 message: 'The itinerary has been created.',
