@@ -1,6 +1,5 @@
 const Itinerary = require('../models/Itinerary');
 const Joi = require('joi');
-const { response } = require('express');
 
 const validator = Joi.object({
     name: Joi.string().required().min(2).max(30).messages({
