@@ -30,7 +30,7 @@ const commentController = {
             })
         } catch (error) {
             res.status(400).json({
-                message: "Could't create comment",
+                message: error.details[0].message,
                 success: false
             })
         }
