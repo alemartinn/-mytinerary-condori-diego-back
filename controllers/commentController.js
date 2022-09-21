@@ -128,7 +128,7 @@ const commentController = {
                     success: true
                 });
             } else {
-                res.status(400).json({
+                res.status(404).json({
                     message: "There isn't delete to comment.",
                     response: commentDeleted,
                     success: false
@@ -138,6 +138,7 @@ const commentController = {
             console.log(error);
             res.status(400).json({
                 message: "We couldn't delete the comment, try it again.",
+                response: null,
                 success: false
             });
         }
