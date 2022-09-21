@@ -3,6 +3,7 @@ const crypto = require('crypto');
 const bcryptjs = require('bcryptjs');
 const sendMail = require('./sendMail');
 const Joi = require('joi');
+const jwt = require('jsonwebtoken')
 
 const validator = Joi.object({
     name: Joi.string().min(3).max(100).required().messages({
@@ -191,10 +192,10 @@ const userController ={
                         }
                         user.loggedIn = true;
                         await user.save();
-
+                        const token = jwt.sign({id: user._id}, process.env.KEY_JWT, {expiresIn: 60*60*24})
                         res.status(200).json({
                             message: 'Welcome '+user.name,
-                            response: userLogged,
+                            response: {token: token, user: userLogged},
                             success: true
                         });
                     }
@@ -216,10 +217,10 @@ const userController ={
                         }
                         user.loggedIn = true;
                         await user.save();
-
+                        const token = jwt.sign({id: user._id}, process.env.KEY_JWT, {expiresIn: 60*60*24})
                         res.status(200).json({
                             message: 'Welcome ' + user.name,
-                            response: userLogged,
+                            response: {token: token, user: userLogged},
                             success: true
                         });
                     }
