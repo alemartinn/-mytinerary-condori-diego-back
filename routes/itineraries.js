@@ -9,6 +9,6 @@ router.get('/:id', getOneItinerary)
 router.post('/', createItinerary);
 router.patch('/:id', updateItinerary);
 router.delete('/:id', deleteItinerary);
-router.patch('/itineraries/likes', passport.authenticate('jwt', {session:false}), likeDislike)
+router.patch('/like/:id', passport.authenticate('jwt', {session:false}), likeDislike)
 
 module.exports = router;
