@@ -90,7 +90,7 @@ const commentController = {
     },
     updateComment: async(req, res) => {
         const {id} = req.params;
-        const mycomment = req.body;
+        const mycomment = await validator.validateAsync(req.body);
 
         try{
             let comment = await Comment.findOneAndUpdate({_id: id}, mycomment, {new: true})
@@ -110,7 +110,7 @@ const commentController = {
         } catch(error) {
             console.log(error);
             res.status(400).json({
-                message: "We couldn't update the comment, try it again",
+                message: error.details[0].message,
                 success: false
             })
         }
