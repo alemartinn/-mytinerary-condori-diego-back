@@ -22,7 +22,8 @@ let schema = new mongoose.Schema({
     loggedIn: {type:Boolean, required: true},
     verified: {type:Boolean, required: true},
     code: {type:String, required:true},
-    role: {type:String, required:true}
+    role: {type:String, required:true},
+    favorites:{type: Array}
 });
 
 const User = mongoose.model('users',schema);
