@@ -90,24 +90,28 @@ const commentController = {
     },
     updateComment: async(req, res) => {
         const {id} = req.params;
-        
+        const user = String(req.user.id);
+        const {comment} = req.body;
+
+        const updatedCom = {
+            itinerary: id,
+            user: user,
+            comment: comment
+        }
+
         try{
-            console.log("--------------------------------")
-            console.log(id)
-            console.log(req)
-            console.log("--------------------------------")
-            let mycomment = await validator.validateAsync(req.body);
-            let comment = await Comment.findOneAndUpdate({_id: id}, mycomment, {new: true})
-            if(comment) {
+            await validator.validateAsync(updatedCom);
+            let commentModified = await Comment.findOneAndUpdate({_id: id}, {comment}, {new: true})
+            if(commentModified) {
                 res.status(200).json({
                     message: "Your comment has been updated",
-                    response: comment,
+                    response: commentModified,
                     success: true
                 })
             } else {
                 res.status(400).json({
                     message: "There isn't comment to update",
-                    response: comment,
+                    response: null,
                     success: false
                 })
             }
