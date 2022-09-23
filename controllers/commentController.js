@@ -20,9 +20,9 @@ const validator = Joi.object({
 
 const commentController = {
     createComment: async(req, res) => {
-        const result = await validator.validateAsync(req.body);
-        const {comment, user, itinerary} = result;
         try{
+            const result = await validator.validateAsync(req.body);
+            const {comment, user, itinerary} = result;
             await new Comment({comment, user, itinerary}).save()
             res.status(201).json({
                 message: "Comment created",
@@ -90,9 +90,13 @@ const commentController = {
     },
     updateComment: async(req, res) => {
         const {id} = req.params;
-        const mycomment = await validator.validateAsync(req.body);
-
+        
         try{
+            console.log("--------------------------------")
+            console.log(id)
+            console.log(req)
+            console.log("--------------------------------")
+            let mycomment = await validator.validateAsync(req.body);
             let comment = await Comment.findOneAndUpdate({_id: id}, mycomment, {new: true})
             if(comment) {
                 res.status(200).json({
