@@ -41,7 +41,8 @@ const validator = Joi.object({
     from: Joi.string().required().messages({
         'any.required': 'From required',
         'string.empty': 'From required'
-    })
+    }),
+    favorites: Joi.array()
 })
 
 const userController ={
@@ -190,7 +191,8 @@ const userController ={
                             country: user.country,
                             email: user.email,
                             role: user.role,
-                            from: user.from
+                            from: user.from,
+                            favorites: user.favorites
                         }
                         user.loggedIn = true;
                         await user.save();
@@ -217,7 +219,8 @@ const userController ={
                             country: user.country,
                             email: user.email,
                             role: user.role,
-                            from: user.from
+                            from: user.from,
+                            favorites: user.favorites
                         }
                         user.loggedIn = true;
                         await user.save();
@@ -304,6 +307,39 @@ const userController ={
                 message: error.details[0].message,
                 success: false
             });
+        }
+    },
+    myFavorites: async(req,res) => {
+        const{id} = req.itinerary
+        const {id:idUser} = req.user
+        try {
+            let user = await User.findOne({_id:idUser})
+            if (user && !user.favorites.includes(id)) {
+                user = await User.findOneAndUpdate({_id:idUser}, {$push:{favorites:id}}, {new:true})
+                res.status(200).json({
+                    message: "Added to favorites",
+                    response: user,
+                    success: true
+                    })
+            } else if (user && user.favorites.includes(id)) {
+                user = await User.findOneAndUpdate({_id:idUser}, {$pull:{favorites:id}}, {new:true})
+                res.status(200).json({
+                    message: "Removed from favorites",
+                    response: user,
+                    success: true
+                })
+            } else {
+                res.status(404).json({
+                    message: "User not found",
+                    success: false, 
+                })
+            }
+        } catch (error) {
+            console.log(error);
+            res.status(400).json({
+                message: error,
+                success: false
+            })
         }
     }
 }
