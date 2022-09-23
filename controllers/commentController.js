@@ -90,6 +90,7 @@ const commentController = {
     },
     updateComment: async(req, res) => {
         const {id} = req.params;
+        console.log(req.body);
         const mycomment = await validator.validateAsync(req.body);
 
         try{
