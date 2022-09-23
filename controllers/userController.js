@@ -142,7 +142,7 @@ const userController ={
             if (userFounded){
                 userFounded.verified = true;
                 await userFounded.save();
-                res.status(200).redirect('http://localhost:4000/verified-account');
+                res.status(200).redirect('http://localhost:3000/verified-account');
             } else {
                 res.status(404).json({
                     message: "This email has not a vinculed account yet",
@@ -184,10 +184,12 @@ const userController ={
 
                         const userLogged = {
                             id: user._id,
-                            role: user.role,
                             name: user.name,
-                            email: user.email,
+                            lastName: user.lastName,
                             photo: user.photo,
+                            country: user.country,
+                            email: user.email,
+                            role: user.role,
                             from: user.from
                         }
                         user.loggedIn = true;
@@ -209,10 +211,12 @@ const userController ={
                     if(checkPass.length > 0){
                         const userLogged = {
                             id: user._id,
-                            role: user.role,
                             name: user.name,
-                            email: user.email,
+                            lastName: user.lastName,
                             photo: user.photo,
+                            country: user.country,
+                            email: user.email,
+                            role: user.role,
                             from: user.from
                         }
                         user.loggedIn = true;
@@ -263,6 +267,45 @@ const userController ={
             })
         }
     },
+    updateUser: async(req, res) => {
+        const {id} = req.params;
+
+        try{
+            let user = await validator.validateAsync(req.body);
+            let {name, lastName, password, photo, country} = user;
+            passwordHashed = bcryptjs.hashSync(password, 10); // Level security 10.
+            let userUpdated = await User.findOneAndUpdate({_id: id}, {name, lastName, passwordHashed, photo, country}, {new: true})
+            if(userUpdated) {
+                const myUserUpdated = {
+                    id: userUpdated._id,
+                    name: userUpdated.name,
+                    lastName: userUpdated.lastName,
+                    photo: userUpdated.photo,
+                    country: userUpdated.country,
+                    email: userUpdated.email,
+                    role: userUpdated.role,
+                    from: userUpdated.from
+                };
+                res.status(200).json({
+                    message: "Your user has been updated.",
+                    response: myUserUpdated,
+                    success: true
+                });
+            } else {
+                res.status(404).json({
+                    message: "We couldn't find the user to update.",
+                    response: null,
+                    success: false
+                });
+            }
+        } catch(error) {
+            console.log(error);
+            res.status(400).json({
+                message: error.details[0].message,
+                success: false
+            });
+        }
+    }
 }
 
 module.exports = userController;
