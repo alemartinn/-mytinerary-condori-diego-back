@@ -7,40 +7,40 @@ const jwt = require('jsonwebtoken')
 
 const validator = Joi.object({
     name: Joi.string().min(3).max(100).required().messages({
-        'any.required': 'Name required',
-        'string.empty': 'Name required',
-        'string.min': 'The name is too short',
-        'string.max': 'The name is too large'
+        'any.required': 'NAME_REQUIRED',
+        'string.empty': 'NAME_REQUIRED',
+        'string.min': 'NAME_TOO_SHORT',
+        'string.max': 'NAME_TOO_LARGE'
     }),
     lastName: Joi.string().min(3).max(100).messages({
-        'string.min': 'The lastname is too short',
-        'string.max': 'The lastname is too large'
+        'string.min': 'LASTNAME_TOO_SHORT',
+        'string.max': 'LASTNAME_TOO_LARGE'
     }),
     photo: Joi.string().uri().required().messages({
-        'any.required': 'Photo required',
-        'string.empty': 'Photo required',
-        'string.uri': 'Invalid URL'
+        'any.required': 'PHOTO_REQUIRED',
+        'string.empty': 'PHOTO_REQUIRED',
+        'string.uri': 'INVALID_URL'
     }),
     country: Joi.string().min(4).max(100),
     email: Joi.string().email().required().messages({
-        'any.required': 'Email Required',
-        'string.empty': 'Email Required',
-        'string.email': 'Invalid email'
+        'any.required': 'EMAIL_REQUIRED',
+        'string.empty': 'EMAIL_REQUIRED',
+        'string.email': 'INVALID_EMAIL'
     }),
     password: Joi.string().required().min(8).max(50).messages({
-        'any.required': 'Pass required',
-        'string.empty': 'Pass required',
-        'string.min': 'Password too short',
-        'string.max': 'Password too large',
+        'any.required': 'PASS_REQUIRED',
+        'string.empty': 'PASS_REQUIRED',
+        'string.min': 'PASS_TOO_SHORT',
+        'string.max': 'PASS_TOO_LARGE',
     }),
     role: Joi.string().required().valid('user', 'admin').messages({
-        'any.required': 'Role Required',
-        'string.empty': 'Role Required',
-        'any.only': 'Role not allowed'
+        'any.required': 'ROLE_REQUIRED',
+        'string.empty': 'ROLE_REQUIRED',
+        'any.only': 'ROLE_NOT_ALLOWED'
     }),
     from: Joi.string().required().messages({
-        'any.required': 'From required',
-        'string.empty': 'From required'
+        'any.required': 'FROM_REQUIRED',
+        'string.empty': 'FROM_REQUIRED'
     })
 })
 
@@ -97,10 +97,8 @@ const userController ={
                 }
             } else {
                 if (user.from.includes(from)){
-                    error = {details: [{message: "User already registered here"}]}
                     res.status(200).json({
-                        message: "User already registered",
-                        response: error,
+                        message: "User already registered with that email",
                         success: false // Because doesn't complete the register.
                     });
                 } else{
@@ -126,7 +124,7 @@ const userController ={
         catch(error){
             console.log(error);
             res.status(400).json({
-                message: "Couldn't signed up",
+                message: error.details[0].message,
                 response: error,
                 success: false
             });
@@ -156,6 +154,21 @@ const userController ={
                 message: "Something failed, try it again",
                 success: false
             });
+        }
+    },
+    verifyToken: async(req,res) => {
+        //console.log(req.user)
+        if (!req.err) {
+        res.status(200).json({
+            message:"Hi! Welcome back "+req.user.name,
+            response: req.user,
+            success: true
+        })
+        } else {
+            res.status(200).json({
+                message:"Sign in please!" ,
+                success: false
+            })
         }
     },
     //Method to sign in an user.
@@ -240,7 +253,7 @@ const userController ={
         catch(error){
             console.log(error);
             res.status(400).json({
-                message: "Couldn't signed in",
+                message: error.details[0].message,
                 response: error,
                 success: false
             });
