@@ -8,6 +8,6 @@ router.post('/', passport.authenticate('jwt', {session:false}), createComment);
 router.get('/', getAllComments);
 router.get('/:id', getComment);
 router.patch('/:id', passport.authenticate('jwt', {session:false}), updateComment);
-router.patch('/:id', passport.authenticate('jwt', {session:false}), deleteComment);
+router.delete('/:id', passport.authenticate('jwt', {session:false}), deleteComment);
 
 module.exports = router
