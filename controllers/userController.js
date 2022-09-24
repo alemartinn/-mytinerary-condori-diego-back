@@ -157,10 +157,9 @@ const userController ={
         }
     },
     verifyToken: async(req,res) => {
-        //console.log(req.user)
-        if (!req.err) {
+        if (req.user) {
         res.status(200).json({
-            message:"Hi! Welcome back "+req.user.name,
+            message: `Hi ${req.user.name}`,
             response: req.user,
             success: true
         })
