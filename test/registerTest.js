@@ -1,4 +1,4 @@
-const request = require('supertest')
+/*const request = require('supertest')
 const app = require('../app')
 const { assert } = require('chai')
 
@@ -46,3 +46,4 @@ const { assert } = require('chai')
             .expect(404, done)
     });
 });
+*/

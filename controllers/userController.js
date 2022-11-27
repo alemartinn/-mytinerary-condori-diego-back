@@ -3,43 +3,44 @@ const crypto = require('crypto');
 const bcryptjs = require('bcryptjs');
 const sendMail = require('./sendMail');
 const Joi = require('joi');
+const jwt = require('jsonwebtoken')
 
 const validator = Joi.object({
     name: Joi.string().min(3).max(100).required().messages({
-        'any.required': 'Name required',
-        'string.empty': 'Name required',
-        'string.min': 'The name is too short',
-        'string.max': 'The name is too large'
+        'any.required': 'NAME_REQUIRED',
+        'string.empty': 'NAME_REQUIRED',
+        'string.min': 'NAME_TOO_SHORT',
+        'string.max': 'NAME_TOO_LARGE'
     }),
     lastName: Joi.string().min(3).max(100).messages({
-        'string.min': 'The lastname is too short',
-        'string.max': 'The lastname is too large'
+        'string.min': 'LASTNAME_TOO_SHORT',
+        'string.max': 'LASTNAME_TOO_LARGE'
     }),
     photo: Joi.string().uri().required().messages({
-        'any.required': 'Photo required',
-        'string.empty': 'Photo required',
-        'string.uri': 'Invalid URL'
+        'any.required': 'PHOTO_REQUIRED',
+        'string.empty': 'PHOTO_REQUIRED',
+        'string.uri': 'INVALID_URL'
     }),
     country: Joi.string().min(4).max(100),
     email: Joi.string().email().required().messages({
-        'any.required': 'Email Required',
-        'string.empty': 'Email Required',
-        'string.email': 'Invalid email'
+        'any.required': 'EMAIL_REQUIRED',
+        'string.empty': 'EMAIL_REQUIRED',
+        'string.email': 'INVALID_EMAIL'
     }),
     password: Joi.string().required().min(8).max(50).messages({
-        'any.required': 'Pass required',
-        'string.empty': 'Pass required',
-        'string.min': 'Password too short',
-        'string.max': 'Password too large',
+        'any.required': 'PASS_REQUIRED',
+        'string.empty': 'PASS_REQUIRED',
+        'string.min': 'PASS_TOO_SHORT',
+        'string.max': 'PASS_TOO_LARGE',
     }),
     role: Joi.string().required().valid('user', 'admin').messages({
-        'any.required': 'Role Required',
-        'string.empty': 'Role Required',
-        'any.only': 'Role not allowed'
+        'any.required': 'ROLE_REQUIRED',
+        'string.empty': 'ROLE_REQUIRED',
+        'any.only': 'ROLE_NOT_ALLOWED'
     }),
     from: Joi.string().required().messages({
-        'any.required': 'From required',
-        'string.empty': 'From required'
+        'any.required': 'FROM_REQUIRED',
+        'string.empty': 'FROM_REQUIRED'
     })
 })
 
@@ -96,14 +97,12 @@ const userController ={
                 }
             } else {
                 if (user.from.includes(from)){
-                    error = {details: [{message: "User already registered here"}]}
                     res.status(200).json({
-                        message: "User already registered",
-                        response: error,
-                        success: false // Porque no completo el registro.
+                        message: "User already registered with that email",
+                        success: false // Because doesn't complete the register.
                     });
                 } else{
-                    user.from.push(from); //Agrego nuevo origen de registro.
+                    user.from.push(from); //Add new register origin.
                     user.verified = true;
                     user.password.push(bcryptjs.hashSync(password,10));
                     await user.save();
@@ -125,7 +124,7 @@ const userController ={
         catch(error){
             console.log(error);
             res.status(400).json({
-                message: "Couldn't signed up",
+                message: error.details[0].message,
                 response: error,
                 success: false
             });
@@ -141,7 +140,7 @@ const userController ={
             if (userFounded){
                 userFounded.verified = true;
                 await userFounded.save();
-                res.status(200).redirect('https://www.google.com');
+                res.status(200).redirect('http://localhost:3000/verified-account');
             } else {
                 res.status(404).json({
                     message: "This email has not a vinculed account yet",
@@ -157,9 +156,23 @@ const userController ={
             });
         }
     },
-    //Method to sign in a user.
+    verifyToken: async(req,res) => {
+        if (req.user) {
+        res.status(200).json({
+            message: `Hi ${req.user.name}`,
+            response: req.user,
+            success: true
+        })
+        } else {
+            res.status(200).json({
+                message:"Sign in please!" ,
+                success: false
+            })
+        }
+    },
+    //Method to sign in an user.
     signIn: async(req, res) => {
-
+        
         const {email, password, from} = req.body;
         
         try {
@@ -183,18 +196,20 @@ const userController ={
 
                         const userLogged = {
                             id: user._id,
-                            role: user.role,
                             name: user.name,
-                            email: user.email,
+                            lastName: user.lastName,
                             photo: user.photo,
+                            country: user.country,
+                            email: user.email,
+                            role: user.role,
                             from: user.from
                         }
                         user.loggedIn = true;
                         await user.save();
-
+                        const token = jwt.sign({id: user._id}, process.env.KEY_JWT, {expiresIn: 60*60*24})
                         res.status(200).json({
                             message: 'Welcome '+user.name,
-                            response: userLogged,
+                            response: {token: token, user: userLogged},
                             success: true
                         });
                     }
@@ -208,18 +223,20 @@ const userController ={
                     if(checkPass.length > 0){
                         const userLogged = {
                             id: user._id,
-                            role: user.role,
                             name: user.name,
-                            email: user.email,
+                            lastName: user.lastName,
                             photo: user.photo,
+                            country: user.country,
+                            email: user.email,
+                            role: user.role,
                             from: user.from
                         }
                         user.loggedIn = true;
                         await user.save();
-
+                        const token = jwt.sign({id: user._id}, process.env.KEY_JWT, {expiresIn: 60*60*24})
                         res.status(200).json({
                             message: 'Welcome ' + user.name,
-                            response: userLogged,
+                            response: {token: token, user: userLogged},
                             success: true
                         });
                     }
@@ -235,7 +252,7 @@ const userController ={
         catch(error){
             console.log(error);
             res.status(400).json({
-                message: "Couldn't signed in",
+                message: error.details[0].message,
                 response: error,
                 success: false
             });
@@ -262,6 +279,45 @@ const userController ={
             })
         }
     },
+    updateUser: async(req, res) => {
+        const {id} = req.params;
+
+        try{
+            let user = await validator.validateAsync(req.body);
+            let {name, lastName, password, photo, country} = user;
+            passwordHashed = bcryptjs.hashSync(password, 10); // Level security 10.
+            let userUpdated = await User.findOneAndUpdate({_id: id}, {name, lastName, passwordHashed, photo, country}, {new: true})
+            if(userUpdated) {
+                const myUserUpdated = {
+                    id: userUpdated._id,
+                    name: userUpdated.name,
+                    lastName: userUpdated.lastName,
+                    photo: userUpdated.photo,
+                    country: userUpdated.country,
+                    email: userUpdated.email,
+                    role: userUpdated.role,
+                    from: userUpdated.from
+                };
+                res.status(200).json({
+                    message: "Your user has been updated.",
+                    response: myUserUpdated,
+                    success: true
+                });
+            } else {
+                res.status(404).json({
+                    message: "We couldn't find the user to update.",
+                    response: null,
+                    success: false
+                });
+            }
+        } catch(error) {
+            console.log(error);
+            res.status(400).json({
+                message: error.details[0].message,
+                success: false
+            });
+        }
+    }
 }
 
 module.exports = userController;

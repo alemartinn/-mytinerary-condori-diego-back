@@ -8,18 +8,26 @@ const validator = Joi.object({
         'string.min': 'NAME_TOO_SHORT',
         'string.max': 'NAME_TOO_LARGE'
     }),
-    user: Joi.string().hex().required(),
-    city: Joi.string().hex().required(),
+    user: Joi.string().required(),
+    city: Joi.string().required(),
     price: Joi.number().integer().min(0).max(100000).required().messages({
         'number.base': 'INVALID_PRICE',
         'any.required': 'PRICE_REQUIRED',
         'number.empty': 'PRICE_REQUIRED',
-        'number.min': 'INVALID_PRICE',
+        'number.min': 'INVALID_MIN_PRICE',
         'number.max': 'PRICE_TOO_MUCH'
     }),
-    likes: Joi.array().required(),
-    tags: Joi.array().required(),
-    duration: Joi.number().min(0).max(12).required(),
+    likes: Joi.array(),
+    tags: Joi.array().required().messages({
+        'any.required': 'TAGS_REQUIRED',
+        'array.empty': 'TAGS_REQUIRED'
+    }),
+    duration: Joi.number().min(0).max(12).required().messages({
+        'any.required': 'DURATION_REQUIRED',
+        'number.empty': 'DURATION_REQUIRED',
+        'number.min': 'INVALID_MIN_DURAT',
+        'number.max': 'DURAT_TOO_MUCH'
+    }),
     description: Joi.string().min(5).max(500).messages({
         'any.required': 'DESCR_REQUIRED',
         'string.empty': 'DESCR_REQUIRED',
@@ -40,8 +48,9 @@ const itineraryController ={
             });
         } catch(error){
             res.status(400).json({
-                message: "Sorry but we couldn't create the itinerary. Try it again.",
-                success: false
+                message: error.details[0].message, //"Sorry but we couldn't create the itinerary. Try it again.",
+                success: false,
+                response: null
             });
         }
     },
@@ -76,11 +85,39 @@ const itineraryController ={
             });
         }
     },
+    getOneItinerary: async(req,res) => {
+        const {id} = req.params;
+        try{
+            let itineraryFounded = await Itinerary.findOne({_id: id});
+            if (itineraryFounded){
+                res.status(200).json({
+                    message: "We found your itinerary",
+                    response: itineraryFounded,
+                    success: true
+                })
+            } else {
+                res.status(404).json({
+                    message: "We didn't find your itinerary",
+                    response: itineraryFounded,
+                    success: false 
+                })
+            }
+        }
+        catch(error){
+            console.log(error)
+            res.status(400).json({
+                message: "We couldn't get the itinerary, try it again",
+                response: error,
+                success: false
+            })
+        }
+    }
+    ,
     updateItinerary: async(req, res) => {
         const {id} = req.params;
-        const mytinerary = req.body;
 
         try{
+            let mytinerary = await validator.validateAsync(req.body);
             let itinerary = await Itinerary.findOneAndUpdate({_id: id}, mytinerary, {new: true})
             if(itinerary) {
                 res.status(200).json({
@@ -98,7 +135,7 @@ const itineraryController ={
         } catch(error) {
             console.log(error);
             res.status(400).json({
-                message: "We couldn't update the itinerary, try it again",
+                message: error.details[0].message,
                 success: false
             })
         }
@@ -128,6 +165,40 @@ const itineraryController ={
                 message: "We couldn't delete the itinerary, try it again.",
                 success: false
             });
+        }
+    },
+    likeDislike: async(req,res) => {
+        const {id} = req.user
+        console.log(id);
+        const {id:idItinerary} = req.params
+        try {
+            let itinerary = await Itinerary.findOne({_id: idItinerary})
+            if (itinerary && !itinerary.likes.includes(id)){
+                itinerary = await Itinerary.findOneAndUpdate({_id:idItinerary}, {$push:{likes:id}}, {new:true})
+                res.status(200).json({
+                message: "Like",
+                response: itinerary,
+                success: true
+                })
+            } else if (itinerary && itinerary.likes.includes(id)){
+                itinerary = await Itinerary.findOneAndUpdate({_id:idItinerary}, {$pull:{likes:id}}, {new:true})
+                res.status(200).json({
+                message: "Dislike",
+                response: itinerary,
+                success: true
+                })
+            } else {
+                res.status(404).json({
+                    message: "Itinerary not found",
+                    success: false, 
+                  });
+            }
+        } catch (error) {
+            console.log(error);
+            res.status(400).json({
+                message: error,
+                success: false
+            })
         }
     }
 }

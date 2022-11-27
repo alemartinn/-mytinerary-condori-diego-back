@@ -6,7 +6,7 @@ const cityRouter = require('./cities');
 const auth = require('./auth');
 const itineraryRouter = require('./itineraries');
 const activitiesRouter = require('./activities');
-const comment = require('./comments');
+const commentRouter = require('./comments');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -21,7 +21,7 @@ router.use('/usersDefault', userDefaultRouter);
 router.use('/auth', auth);
 router.use('/itineraries', itineraryRouter);
 router.use('/activities', activitiesRouter);
-router.use('/comments', comment);
+router.use('/comments', commentRouter);
 
 
 module.exports = router;

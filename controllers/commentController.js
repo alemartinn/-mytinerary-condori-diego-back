@@ -20,9 +20,9 @@ const validator = Joi.object({
 
 const commentController = {
     createComment: async(req, res) => {
-        const result = await validator.validateAsync(req.body);
-        const {comment, user, itinerary} = result;
         try{
+            const result = await validator.validateAsync(req.body);
+            const {comment, user, itinerary} = result;
             await new Comment({comment, user, itinerary}).save()
             res.status(201).json({
                 message: "Comment created",
@@ -30,7 +30,7 @@ const commentController = {
             })
         } catch (error) {
             res.status(400).json({
-                message: "Could't create comment",
+                message: error.details[0].message,
                 success: false
             })
         }
@@ -90,27 +90,35 @@ const commentController = {
     },
     updateComment: async(req, res) => {
         const {id} = req.params;
-        const mycomment = req.body;
+        const user = String(req.user.id);
+        const {comment} = req.body;
+
+        const updatedCom = {
+            itinerary: id,
+            user: user,
+            comment: comment
+        }
 
         try{
-            let comment = await Comment.findOneAndUpdate({_id: id}, mycomment, {new: true})
-            if(comment) {
+            await validator.validateAsync(updatedCom);
+            let commentModified = await Comment.findOneAndUpdate({_id: id}, {comment}, {new: true})
+            if(commentModified) {
                 res.status(200).json({
                     message: "Your comment has been updated",
-                    response: comment,
+                    response: commentModified,
                     success: true
                 })
             } else {
                 res.status(400).json({
                     message: "There isn't comment to update",
-                    response: comment,
+                    response: null,
                     success: false
                 })
             }
         } catch(error) {
             console.log(error);
             res.status(400).json({
-                message: "We couldn't update the comment, try it again",
+                message: error.details[0].message,
                 success: false
             })
         }
@@ -128,7 +136,7 @@ const commentController = {
                     success: true
                 });
             } else {
-                res.status(400).json({
+                res.status(404).json({
                     message: "There isn't delete to comment.",
                     response: commentDeleted,
                     success: false
@@ -138,6 +146,7 @@ const commentController = {
             console.log(error);
             res.status(400).json({
                 message: "We couldn't delete the comment, try it again.",
+                response: null,
                 success: false
             });
         }
