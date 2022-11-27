@@ -11,12 +11,12 @@ let schema = new mongoose.Schema({
     },
     password: {
         type: Array, required: true},
-        photo: {type: String, required: true,
-            validate: function (value){
-                if (!value.startsWith('http')) {
-                    throw new Error('Must start with http')
-                }
-            }},
+    photo: {type: String, required: true,
+        validate: function (value){
+            if (!value.startsWith('http')) {
+                throw new Error('Must start with http')
+            }
+    }},
     country: {type: String, min: 4, max: 100},
     from: [{type: String, required: true,  min: 4, max:59}],
     loggedIn: {type:Boolean, required: true},
